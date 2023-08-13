@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import axios from "axios";
 
 const  TaskForm = ({onClose , onAddTask}) => {
     const [taskText, setTaskText] = useState('');
@@ -6,9 +7,15 @@ const  TaskForm = ({onClose , onAddTask}) => {
     const handleSubmit = (e) =>{
         e.preventDefault()
         if (taskText.trim() !== ''){
-            onAddTask(taskText);
-            setTaskText('');
-            onClose();
+            axios.post('http://localhost:8000/api/create-task/', { text: taskText })
+                .then(response => {
+                    onAddTask(response.data); // Update your state with the new task data
+                    setTaskText('');
+                    onClose();
+                })
+                .catch(error => {
+                    console.error('Error creating task:', error);
+                });
         }
     };
 
