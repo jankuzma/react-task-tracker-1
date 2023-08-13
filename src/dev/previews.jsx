@@ -1,10 +1,14 @@
 import React from 'react'
-import { Previews } from '@react-buddy/ide-toolbox'
-import { PaletteTree } from './palette'
+import {ComponentPreview, Previews} from '@react-buddy/ide-toolbox'
+import {PaletteTree} from './palette'
+import TaskList from "../components/TaskList.jsx";
 
 const ComponentPreviews = () => {
     return (
-        <Previews palette={<PaletteTree />}>
+        <Previews palette={<PaletteTree/>}>
+            <ComponentPreview path="/TaskList">
+                <TaskList/>
+            </ComponentPreview>
         </Previews>
     )
 }

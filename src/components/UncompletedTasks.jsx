@@ -1,17 +1,18 @@
 import React from "react";
 
-const CompletedTasks = ({ completedTasks }) => {
+const UncompletedTasks = ({ uncompletedTasks, onDeleteTask, onCompleteTask }) => {
   return(
     <>
-      <h2>Completed tasks</h2>
-      {completedTasks.map((task) => (
+      <h2>Uncompleted tasks</h2>
+      {uncompletedTasks.map((task) => (
           <li key={task.id}>
             {task.text}
-
+              <button onClick={() => onDeleteTask(task)}>Delete</button>
+              <button onClick={() => onCompleteTask(task)}>Complete</button>
           </li>
       ))}
     </>
   );
 }
 
-export default CompletedTasks;
+export default UncompletedTasks;
