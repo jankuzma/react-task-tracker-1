@@ -1,19 +1,18 @@
 import React, {useState} from 'react';
 import axios from "axios";
 
-const  TaskForm = ({onClose , onAddTask}) => {
+const  TaskForm = ({onClose}) => {
     const [taskText, setTaskText] = useState('');
 
-    const handleSubmit = (e) =>{
-        e.preventDefault()
+    const handleSubmit = (event) =>{
+        event.preventDefault()
         if (taskText.trim() !== ''){
-            axios.post('http://localhost:8000/api/create-task/', { text: taskText })
+            axios
+                .post('http://localhost:8000/api/create-task/', {"text":taskText})
                 .then(response => {
-                    onAddTask(response.data); // Update your state with the new task data
-                    setTaskText('');
                     onClose();
                 })
-                .catch(error => {
+                .catch((error) => {
                     console.error('Error creating task:', error);
                 });
         }

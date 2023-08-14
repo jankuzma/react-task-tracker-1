@@ -13,11 +13,12 @@ import LogoutButton from "./components/LogoutButton.jsx";
 function App() {
     const [tasks, setTasks] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const {user} = useAuth()
 
     const completedTasks = tasks.filter((task) => task.completed);
     const uncompletedTasks = tasks.filter((task) => !task.completed);
 
-    useEffect(() =>{
+    useEffect(() => {
         fetchData();
     }, [])
 
@@ -33,42 +34,43 @@ function App() {
 
     const deleteTask = (task) => {
         axios.delete('http://localhost:8000/api/delete-task/' + task.id + '/')
-            .then(response =>{
+            .then(response => {
                 if (response.status === 204) {
                     fetchData()
                 }
             })
-            .catch(error =>{
+            .catch(error => {
                 console.log('Error deleting task', error);
             });
     };
 
-    const addTask = (taskText) => {
-        // Send POST request to Django API to add the task
-        axios.post('http://localhost:8000/api/create-task/', { text: taskText })
-            .then(response => {
-                // Update state with the new task
-                setTasks([...tasks, response.data]);
+    const handleCompleteTask = (task) => {
+        axios
+            .put(`http://localhost:8000/api/complete-task/${task.id}/`)
+            .then(response =>{
+                console.log('Task marked as completed:', response);
+                if (response.status === 200){
+                    fetchData()
+                }
             })
-            .catch(error => {
-                console.error('Error adding task:', error);
+            .catch(error =>{
+                console.error('Error while completing the task', error)
             });
-        fetchData()
     };
 
-    const handleCompleteTask = (taskToComplete) => {
-        const updatedTasks = tasks.map((task) =>
-        task.id === taskToComplete.id ? {...task, completed: true} : task
-        );
-        setTasks(updatedTasks)
-    }
-
-    const handleUnompleteTask = (taskToUncomplete) => {
-        const updatedTasks = tasks.map((task) =>
-        task.id === taskToUncomplete.id ? {...task, completed: false}: task
-        );
-        setTasks(updatedTasks)
-    }
+    const handleUncompleteTask = (task) => {
+        axios
+            .put(`http://localhost:8000/api/uncomplete-task/${task.id}/`)
+            .then(response =>{
+                console.log('Task marked as uncompleted:', response);
+                if (response.status === 200){
+                    fetchData()
+                }
+            })
+            .catch(error =>{
+                console.error('Error while uncompleting the task', error)
+            });
+    };
 
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen)
@@ -76,28 +78,35 @@ function App() {
 
     return (
         <>
-            <AuthProvider>
-                <LoginForm />
-                <RegisterForm />
+            {user ? (
                     <>
-                        <LogoutButton />
-                        <RefreshButton onClick={fetchData} />
+                        <LogoutButton/>
+                        <RefreshButton onClick={fetchData}/>
                         <button onClick={toggleModal}>+</button>
                         {isModalOpen && (
-                            <TaskForm onClose={toggleModal} onAddTask={addTask} />
+                            <TaskForm onClose={() => {
+                                toggleModal()
+                                fetchData()
+                            }}/>
                         )}
                         <UncompletedTasks
                             uncompletedTasks={uncompletedTasks}
                             onDeleteTask={deleteTask}
-                            onCompleteTask={handleCompleteTask}
-                        />
+                            onCompleteTask={handleCompleteTask}/>
                         <CompletedTasks
                             completedTasks={completedTasks}
                             onDeleteTask={deleteTask}
-                            onUncompleteTask={handleUnompleteTask}
+                            onUncompleteTask={handleUncompleteTask}
                         />
                     </>
-            </AuthProvider>
+                )
+                : (
+                    <>
+                        <LoginForm/>
+
+                        <RegisterForm/>
+                    </>
+                )}
         </>
     );
 }
